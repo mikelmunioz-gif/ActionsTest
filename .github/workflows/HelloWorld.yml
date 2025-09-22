@@ -1,0 +1,16 @@
+# .github/workflows/hello.yml
+name: CI - Hello
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  echo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Mensaje
+        run: echo "Hola GitHub Actions!"
