@@ -1,0 +1,51 @@
+name: CI + Run Scripts
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  test-and-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install pytest
+          fi
+
+      - name: Run tests (pytest)
+        run: pytest -q
+
+      - name: Run every script under scripts/ (module-mode)
+        if: always()   # para que se muestren mensajes aunque fallen tests
+        run: |
+          echo "### Mensajes de scripts" >> $GITHUB_STEP_SUMMARY
+          if [ -d scripts ]; then
+            # Recorre cada *.py en scripts/ y lo ejecuta como módulo: python -m scripts.<nombre>
+            for file in $(ls scripts/*.py 2>/dev/null || true); do
+              mod="${file%.py}"
+              mod="${mod//\//.}"     # convierte "scripts/saluda.py" -> "scripts.saluda"
+              echo "===> Ejecutando ${mod}"
+              echo "- Ejecutando \`${mod}\`" >> $GITHUB_STEP_SUMMARY
+              python -m "${mod}"
+            done
+          else
+            echo "No hay carpeta 'scripts/'." 
+            echo "No se encontraron scripts para ejecutar." >> $GITHUB_STEP_SUMMARY
+          fi
