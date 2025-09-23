@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+build/
+dist/
+
+# Entornos virtuales
+.venv/
+venv/
+
+# pytest
+.pytest_cache/
+
+# VS Code
+.vscode/
